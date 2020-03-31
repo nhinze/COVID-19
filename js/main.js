@@ -5,6 +5,7 @@ var hospitalized = [];
 var deaths = [];
 var tests = [];
 
+var population_usa;
 var population = {};
 
 var states = {
@@ -63,9 +64,67 @@ var states = {
 
 function main() {
 
-    $.getJSON("https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest", function (data) {
-        population = data.data;
-        getStates();
+    // Get USA population
+    $.getJSON("https://datausa.io/api/data?drilldowns=Nation&measures=Population&year=latest", function (data) {
+
+        population_usa = data.data[0].Population / 1e6;
+
+        positives.x0 = [];
+        positives.y0 = [];
+
+        hospitalized.x0 = [];
+        hospitalized.y0 = [];
+
+        deaths.x0 = [];
+        deaths.y0 = [];
+
+        tests.x0 = [];
+        tests.y0 = [];
+
+        // Get USA Covid Data
+        $.getJSON( "https://covidtracking.com/api/us/daily", function( data ) {
+
+            var positive_counter = 0;
+            var hospital_counter = 0;
+            var death_counter = 0;
+            var test_counter = 0;
+
+            for (var i = 0; i < data.length; i++) {
+                var positive = data[data.length - i - 1].positive;
+                if (positive > 0) {
+                    positives.x0.push(positive_counter);
+                    positives.y0.push(Math.round(positive / population_usa));
+                    positive_counter += 1
+                }
+
+                var hospital = data[data.length - i - 1].hospitalized;
+                if (hospital > 0) {
+                    hospitalized.x0.push(hospital_counter);
+                    hospitalized.y0.push(Math.round(hospital / population_usa));
+                    hospital_counter += 1
+                }
+
+                var death = data[data.length - i - 1].death;
+                if (death > 0) {
+                    deaths.x0.push(death_counter);
+                    deaths.y0.push(Math.round(death / population_usa));
+                    death_counter += 1;
+                }
+
+                var test = data[data.length - i - 1].totalTestResults;
+                if (test > 0) {
+                    tests.x0.push(test_counter);
+                    tests.y0.push(Math.round(test / population_usa));
+                    test_counter += 1;
+                }
+            }
+
+            // Get selected states Covid Data
+            $.getJSON("https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest", function (data) {
+                population = data.data;
+                getStates();
+            });
+        });
     });
 
 }
@@ -188,49 +247,36 @@ function getData(state_1, state_2) {
 
 function check_ready(state_1, state_2) {
 
+    var max_labels;
+    var labels;
+
     if (positives.y1.length > 0 && positives.y2.length > 0) {
-        var labels;
-        if (positives.x1.length > positives.x2.length) {
-            labels = positives.x1;
-        } else {
-            labels = positives.x2;
-        }
-        plot('casesChart', labels, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first Covid-19 case', 'Covid-19 cases per 1M');
+        max_labels = Math.max(...[positives.y0.length, positives.y1.length, positives.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('casesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first Covid-19 case', 'Covid-19 cases per 1M');
     }
 
     if (hospitalized.y1.length > 0 && hospitalized.y2.length > 0) {
-        var labels;
-        if (hospitalized.x1.length > hospitalized.x2.length) {
-            labels = hospitalized.x1;
-        } else {
-            labels = hospitalized.x2;
-        }
-        plot('hospitalizedChart', labels, hospitalized.y1, hospitalized.y2, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first Covid-19 hospitalization', 'Covid-19 hospitalizations per 1M');
+        max_labels = Math.max(...[hospitalized.y0.length, hospitalized.y1.length, hospitalized.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('hospitalizedChart', labels, hospitalized.y0, hospitalized.y1, hospitalized.y2, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first Covid-19 hospitalization', 'Covid-19 hospitalizations per 1M');
     }
 
     if (deaths.y1.length > 0 && deaths.y2.length > 0) {
-        var labels;
-        if (deaths.x1.length > deaths.x2.length) {
-            labels = deaths.x1;
-        } else {
-            labels = deaths.x2;
-        }
-        plot('deathsChart', labels, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first Covid-19 death', 'Covid-19 deaths per 1M');
+        max_labels = Math.max(...[deaths.y0.length, deaths.y1.length, deaths.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('deathsChart', labels, deaths.y0, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first Covid-19 death', 'Covid-19 deaths per 1M');
     }
 
     if (tests.y1.length > 0 && tests.y2.length > 0) {
-        var labels;
-        if (tests.x1.length > tests.x2.length) {
-            labels = tests.x1;
-        } else {
-            labels = tests.x2;
-        }
-        plot('testsChart', labels, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first Covid-19 test', 'Covid-19 tests per 1M');
+        max_labels = Math.max(...[tests.y0.length, tests.y1.length, tests.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('testsChart', labels, tests.y0, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first Covid-19 test', 'Covid-19 tests per 1M');
     }
 
 }
 
-function plot(chart_id, x_values, y_values_1, y_values_2, state_1, state_2, title, xtitle, ytitle) {
+function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, state_2, title, xtitle, ytitle) {
 
     var ctx = document.getElementById(chart_id).getContext('2d');
     charts.push(new Chart(ctx, {
@@ -238,6 +284,11 @@ function plot(chart_id, x_values, y_values_1, y_values_2, state_1, state_2, titl
         data: {
             labels: x_values,
             datasets: [{
+                label: 'USA',
+                data: y_values_0,
+                borderColor: 'black',
+                fill: false
+            },{
                 label: state_1,
                 data: y_values_1,
                 borderColor: 'blue',
