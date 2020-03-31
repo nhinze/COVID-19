@@ -14,6 +14,8 @@
 <body onload="main();">
     <h1 style="text-align: center;">Covid-19</h1>
 
+    <p style="text-align: center;">Data source: <a href="https://covidtracking.com">The COVID Tracking Project</a></p>
+
     <p style="text-align: center;">
         <select id="state_1" onchange="getStates()">
             <option value="AL">Alabama</option>
@@ -125,7 +127,9 @@
     </p>
 
     <canvas id="casesChart"></canvas>
+    <canvas id="hospitalizedChart"></canvas>
     <canvas id="deathsChart"></canvas>
+    <canvas id="testsChart"></canvas>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
