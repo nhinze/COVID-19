@@ -192,7 +192,8 @@ function plot(chart_id, x_values, y_values_1, y_values_2, state_1, state_2, titl
             responsive: true,
             title: {
                 display: true,
-                text: title
+                text: title,
+                fontSize: 24
             },
             tooltips: {
                 mode: 'index',
@@ -207,14 +208,16 @@ function plot(chart_id, x_values, y_values_1, y_values_2, state_1, state_2, titl
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: xtitle
+                        labelString: xtitle,
+                        fontSize: 18
                     }
                 }],
                 yAxes: [{
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: ytitle
+                        labelString: ytitle,
+                        fontSize: 18
                     }
                 }]
             }
