@@ -5,6 +5,7 @@ var positives = [];
 var hospitalized = [];
 var deaths = [];
 var tests = [];
+var positivesRatio = [];
 
 var population_usa;
 var population = {};
@@ -84,6 +85,9 @@ function main() {
         tests.x0 = [];
         tests.y0 = [];
 
+        positivesRatio.x0 = [];
+        positivesRatio.y0 = [];
+
         // Get USA Covid Data
         $.getJSON( "https://covidtracking.com/api/us/daily", function( data ) {
 
@@ -91,6 +95,7 @@ function main() {
             var hospital_counter = 0;
             var death_counter = 0;
             var test_counter = 0;
+            var positivesRatio_counter = 0;
 
             for (var i = 0; i < data.length; i++) {
                 var positive = data[data.length - i - 1].positive;
@@ -119,6 +124,12 @@ function main() {
                     tests.x0.push(test_counter);
                     tests.y0.push(Math.round(test / population_usa));
                     test_counter += 1;
+                }
+
+                if (test > 0) {
+                    positivesRatio.x0.push(positivesRatio_counter);
+                    positivesRatio.y0.push(Math.round(positive / test * 1000.0) / 10.0);
+                    positivesRatio_counter += 1;
                 }
             }
 
@@ -167,12 +178,18 @@ function getData(state_1, state_2) {
     tests.y1 = [];
     tests.y2 = [];
 
+    positivesRatio.x1 = [];
+    positivesRatio.x2 = [];
+    positivesRatio.y1 = [];
+    positivesRatio.y2 = [];
+
     $.getJSON( "https://covidtracking.com/api/states/daily?state=" + state_1, function( data ) {
 
         var positive_counter = 0;
         var hospital_counter = 0;
         var death_counter = 0;
         var test_counter = 0;
+        var positivesRatio_counter = 0;
 
         var state_pop = getPopulation(state_1);
 
@@ -204,6 +221,12 @@ function getData(state_1, state_2) {
                 tests.y1.push(Math.round(test / state_pop));
                 test_counter += 1;
             }
+
+            if (test > 0) {
+                positivesRatio.x1.push(positivesRatio_counter);
+                positivesRatio.y1.push(Math.round(positive / test * 1000.0) / 10.0);
+                positivesRatio_counter += 1;
+            }
         }
 
         state_date.s1 = parseDate(data[0].date);
@@ -217,6 +240,7 @@ function getData(state_1, state_2) {
         var hospital_counter = 0;
         var death_counter = 0;
         var test_counter = 0;
+        var positivesRatio_counter = 0;
 
         var state_pop = getPopulation(state_2);
 
@@ -248,6 +272,12 @@ function getData(state_1, state_2) {
                 tests.y2.push(Math.round(test / state_pop));
                 test_counter += 1;
             }
+
+            if (test > 0) {
+                positivesRatio.x2.push(positivesRatio_counter);
+                positivesRatio.y2.push(Math.round(positive / test * 1000.0) / 10.0);
+                positivesRatio_counter += 1;
+            }
         }
 
         state_date.s2 = parseDate(data[0].date);
@@ -265,25 +295,31 @@ function check_ready(state_1, state_2) {
     if (positives.y1.length > 0 && positives.y2.length > 0) {
         max_labels = Math.max(...[positives.y0.length, positives.y1.length, positives.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('casesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first Covid-19 case', 'Covid-19 cases per 1M');
+        plot('casesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first case', 'Cases per 1M');
     }
 
     if (hospitalized.y1.length > 0 && hospitalized.y2.length > 0) {
         max_labels = Math.max(...[hospitalized.y0.length, hospitalized.y1.length, hospitalized.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('hospitalizedChart', labels, hospitalized.y0, hospitalized.y1, hospitalized.y2, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first Covid-19 hospitalization', 'Covid-19 hospitalizations per 1M');
+        plot('hospitalizedChart', labels, hospitalized.y0, hospitalized.y1, hospitalized.y2, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first hospitalization', 'Hospitalizations per 1M');
     }
 
     if (deaths.y1.length > 0 && deaths.y2.length > 0) {
         max_labels = Math.max(...[deaths.y0.length, deaths.y1.length, deaths.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('deathsChart', labels, deaths.y0, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first Covid-19 death', 'Covid-19 deaths per 1M');
+        plot('deathsChart', labels, deaths.y0, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first death', 'Deaths per 1M');
     }
 
     if (tests.y1.length > 0 && tests.y2.length > 0) {
         max_labels = Math.max(...[tests.y0.length, tests.y1.length, tests.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('testsChart', labels, tests.y0, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first Covid-19 test', 'Covid-19 tests per 1M');
+        plot('testsChart', labels, tests.y0, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first test', 'Tests per 1M');
+    }
+
+    if (positivesRatio.y1.length > 0 && positivesRatio.y2.length > 0) {
+        max_labels = Math.max(...[positivesRatio.y0.length, positivesRatio.y1.length, positivesRatio.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('positivesRatioChart', labels, positivesRatio.y0, positivesRatio.y1, positivesRatio.y2, state_1, state_2, 'Percent positive Covid-19 tests', 'Days since first test', 'Positive tests (%)');
     }
 
     // Display when data last updated
