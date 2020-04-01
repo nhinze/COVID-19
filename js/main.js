@@ -1,5 +1,6 @@
 var charts = [];
 
+var state_date = [];
 var positives = [];
 var hospitalized = [];
 var deaths = [];
@@ -69,6 +70,8 @@ function main() {
 
         population_usa = data.data[0].Population / 1e6;
 
+        state_date.s0 = [];
+
         positives.x0 = [];
         positives.y0 = [];
 
@@ -119,6 +122,8 @@ function main() {
                 }
             }
 
+            state_date.s0 = parseDate(data[0].date);
+
             // Get selected states Covid Data
             $.getJSON("https://datausa.io/api/data?drilldowns=State&measures=Population&year=latest", function (data) {
                 population = data.data;
@@ -138,6 +143,9 @@ function getStates() {
 }
 
 function getData(state_1, state_2) {
+
+    state_date.s1 = [];
+    state_date.s2 = [];
 
     positives.x1 = [];
     positives.x2 = [];
@@ -198,6 +206,8 @@ function getData(state_1, state_2) {
             }
         }
 
+        state_date.s1 = parseDate(data[0].date);
+
         check_ready(state_1, state_2);
     });
 
@@ -240,6 +250,8 @@ function getData(state_1, state_2) {
             }
         }
 
+        state_date.s2 = parseDate(data[0].date);
+
         check_ready(state_1, state_2);
     });
 
@@ -273,6 +285,11 @@ function check_ready(state_1, state_2) {
         labels = [...Array(max_labels).keys()];
         plot('testsChart', labels, tests.y0, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first Covid-19 test', 'Covid-19 tests per 1M');
     }
+
+    // Display when data last updated
+    $('#lastUpdateSpan0').html('USA: ' + state_date.s0);
+    $('#lastUpdateSpan1').html(state_1 + ': ' + state_date.s1);
+    $('#lastUpdateSpan2').html(state_2 + ': ' + state_date.s2);
 
 }
 
@@ -349,4 +366,12 @@ function getPopulation(stateID) {
             return population[i].Population / 1e6;
         }
     }
+}
+
+function parseDate(date_num) {
+    date_str = date_num.toString();
+    year_str = date_str.substr(0, 4);
+    month_str = date_str.substr(4, 2);
+    day_str = date_str.substr(6, 2);
+    return month_str + '/' + day_str + '/' + year_str;
 }
