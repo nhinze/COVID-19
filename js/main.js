@@ -101,28 +101,28 @@ function main() {
                 var positive = data[data.length - i - 1].positive;
                 if (positive > 0) {
                     positives.x0.push(positive_counter);
-                    positives.y0.push(Math.round(positive / population_usa));
+                    positives.y0.push(Math.round(positive / population_usa * 10) / 10);
                     positive_counter += 1
                 }
 
                 var hospital = data[data.length - i - 1].hospitalized;
                 if (hospital > 0) {
                     hospitalized.x0.push(hospital_counter);
-                    hospitalized.y0.push(Math.round(hospital / population_usa));
+                    hospitalized.y0.push(Math.round(hospital / population_usa * 10) / 10);
                     hospital_counter += 1
                 }
 
                 var death = data[data.length - i - 1].death;
                 if (death > 0) {
                     deaths.x0.push(death_counter);
-                    deaths.y0.push(Math.round(death / population_usa));
+                    deaths.y0.push(Math.round(death / population_usa * 10) / 10);
                     death_counter += 1;
                 }
 
                 var test = data[data.length - i - 1].totalTestResults;
                 if (test > 0) {
                     tests.x0.push(test_counter);
-                    tests.y0.push(Math.round(test / population_usa));
+                    tests.y0.push(Math.round(test / population_usa * 10) / 10);
                     test_counter += 1;
                 }
 
@@ -197,28 +197,28 @@ function getData(state_1, state_2) {
             var positive = data[data.length - i - 1].positive;
             if (positive > 0) {
                 positives.x1.push(positive_counter);
-                positives.y1.push(Math.round(positive / state_pop));
+                positives.y1.push(Math.round(positive / state_pop * 10) / 10);
                 positive_counter += 1
             }
 
             var hospital = data[data.length - i - 1].hospitalized;
             if (hospital > 0) {
                 hospitalized.x1.push(hospital_counter);
-                hospitalized.y1.push(Math.round(hospital / state_pop));
+                hospitalized.y1.push(Math.round(hospital / state_pop * 10) / 10);
                 hospital_counter += 1
             }
 
             var death = data[data.length - i - 1].death;
             if (death > 0) {
                 deaths.x1.push(death_counter);
-                deaths.y1.push(Math.round(death / state_pop));
+                deaths.y1.push(Math.round(death / state_pop * 10) / 10);
                 death_counter += 1;
             }
 
             var test = data[data.length - i - 1].totalTestResults;
             if (test > 0) {
                 tests.x1.push(test_counter);
-                tests.y1.push(Math.round(test / state_pop));
+                tests.y1.push(Math.round(test / state_pop * 10) / 10);
                 test_counter += 1;
             }
 
@@ -248,28 +248,28 @@ function getData(state_1, state_2) {
             var positive = data[data.length - i - 1].positive;
             if (positive > 0) {
                 positives.x2.push(positive_counter);
-                positives.y2.push(Math.round(positive / state_pop));
+                positives.y2.push(Math.round(positive / state_pop * 10) / 10);
                 positive_counter += 1
             }
 
             var hospital = data[data.length - i - 1].hospitalized;
             if (hospital > 0) {
                 hospitalized.x2.push(hospital_counter);
-                hospitalized.y2.push(Math.round(hospital / state_pop));
+                hospitalized.y2.push(Math.round(hospital / state_pop * 10) / 10);
                 hospital_counter += 1
             }
 
             var death = data[data.length - i - 1].death;
             if (death > 0) {
                 deaths.x2.push(death_counter);
-                deaths.y2.push(Math.round(death / state_pop));
+                deaths.y2.push(Math.round(death / state_pop * 10) / 10);
                 death_counter += 1;
             }
 
             var test = data[data.length - i - 1].totalTestResults;
             if (test > 0) {
                 tests.x2.push(test_counter);
-                tests.y2.push(Math.round(test / state_pop));
+                tests.y2.push(Math.round(test / state_pop * 10) / 10);
                 test_counter += 1;
             }
 
