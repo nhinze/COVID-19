@@ -2,6 +2,7 @@ var charts = [];
 
 var state_date = [];
 var positives = [];
+var positivesIncrease = [];
 var hospitalized = [];
 var deaths = [];
 var tests = [];
@@ -76,6 +77,9 @@ function main() {
         positives.x0 = [];
         positives.y0 = [];
 
+        positivesIncrease.x0 = [];
+        positivesIncrease.y0 = [];
+
         hospitalized.x0 = [];
         hospitalized.y0 = [];
 
@@ -99,9 +103,13 @@ function main() {
 
             for (var i = 0; i < data.length; i++) {
                 var positive = data[data.length - i - 1].positive;
+                var positiveIncrease = data[data.length - i - 1].positiveIncrease;
                 if (positive > 0) {
                     positives.x0.push(positive_counter);
                     positives.y0.push(Math.round(positive / population_usa * 10) / 10);
+
+                    positivesIncrease.x0.push(positive_counter);
+                    positivesIncrease.y0.push(Math.round(positiveIncrease / population_usa * 10) / 10);
                     positive_counter += 1
                 }
 
@@ -163,6 +171,11 @@ function getData(state_1, state_2) {
     positives.y1 = [];
     positives.y2 = [];
 
+    positivesIncrease.x1 = [];
+    positivesIncrease.x2 = [];
+    positivesIncrease.y1 = [];
+    positivesIncrease.y2 = [];
+
     hospitalized.x1 = [];
     hospitalized.x2 = [];
     hospitalized.y1 = [];
@@ -195,9 +208,13 @@ function getData(state_1, state_2) {
 
         for (var i = 0; i < data.length; i++) {
             var positive = data[data.length - i - 1].positive;
+            var positiveIncrease = data[data.length - i - 1].positiveIncrease;
             if (positive > 0) {
                 positives.x1.push(positive_counter);
                 positives.y1.push(Math.round(positive / state_pop * 10) / 10);
+
+                positivesIncrease.x1.push(positive_counter);
+                positivesIncrease.y1.push(Math.round(positiveIncrease / state_pop * 10) / 10);
                 positive_counter += 1
             }
 
@@ -246,9 +263,13 @@ function getData(state_1, state_2) {
 
         for (var i = 0; i < data.length; i++) {
             var positive = data[data.length - i - 1].positive;
+            var positiveIncrease = data[data.length - i - 1].positiveIncrease;
             if (positive > 0) {
                 positives.x2.push(positive_counter);
                 positives.y2.push(Math.round(positive / state_pop * 10) / 10);
+
+                positivesIncrease.x2.push(positive_counter);
+                positivesIncrease.y2.push(Math.round(positiveIncrease / state_pop * 10) / 10);
                 positive_counter += 1
             }
 
@@ -295,7 +316,13 @@ function check_ready(state_1, state_2) {
     if (positives.y1.length > 0 && positives.y2.length > 0) {
         max_labels = Math.max(...[positives.y0.length, positives.y1.length, positives.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('casesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first case', 'Cases per 1M');
+        plot('positivesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first case', 'Cases per 1M');
+    }
+
+    if (positivesIncrease.y1.length > 0 && positivesIncrease.y2.length > 0) {
+        max_labels = Math.max(...[positivesIncrease.y0.length, positivesIncrease.y1.length, positivesIncrease.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('positivesIncreaseChart', labels, positivesIncrease.y0, positivesIncrease.y1, positivesIncrease.y2, state_1, state_2, 'New Covid-19 cases per 1M', 'Days since first case', 'New cases per 1M');
     }
 
     if (hospitalized.y1.length > 0 && hospitalized.y2.length > 0) {
