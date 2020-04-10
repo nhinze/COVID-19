@@ -5,6 +5,7 @@ var positives = [];
 var positivesIncrease = [];
 var hospitalized = [];
 var deaths = [];
+var deathsIncrease = [];
 var tests = [];
 var positivesRatio = [];
 
@@ -86,6 +87,9 @@ function main() {
         deaths.x0 = [];
         deaths.y0 = [];
 
+        deathsIncrease.x0 = [];
+        deathsIncrease.y0 = [];
+
         tests.x0 = [];
         tests.y0 = [];
 
@@ -121,9 +125,13 @@ function main() {
                 }
 
                 var death = data[data.length - i - 1].death;
+                var deathIncrease = Math.max(0, data[data.length - i - 1].deathIncrease);
                 if (death > 0) {
                     deaths.x0.push(death_counter);
                     deaths.y0.push(Math.round(death / population_usa * 10) / 10);
+
+                    deathsIncrease.x0.push(death_counter);
+                    deathsIncrease.y0.push(Math.round(deathIncrease / population_usa * 10) / 10);
                     death_counter += 1;
                 }
 
@@ -186,6 +194,11 @@ function getData(state_1, state_2) {
     deaths.y1 = [];
     deaths.y2 = [];
 
+    deathsIncrease.x1 = [];
+    deathsIncrease.x2 = [];
+    deathsIncrease.y1 = [];
+    deathsIncrease.y2 = [];
+
     tests.x1 = [];
     tests.x2 = [];
     tests.y1 = [];
@@ -208,7 +221,7 @@ function getData(state_1, state_2) {
 
         for (var i = 0; i < data.length; i++) {
             var positive = data[data.length - i - 1].positive;
-            var positiveIncrease = data[data.length - i - 1].positiveIncrease;
+            var positiveIncrease = Math.max(0, data[data.length - i - 1].positiveIncrease);
             if (positive > 0) {
                 positives.x1.push(positive_counter);
                 positives.y1.push(Math.round(positive / state_pop * 10) / 10);
@@ -226,9 +239,13 @@ function getData(state_1, state_2) {
             }
 
             var death = data[data.length - i - 1].death;
+            var deathIncrease = data[data.length - i - 1].deathIncrease;
             if (death > 0) {
                 deaths.x1.push(death_counter);
                 deaths.y1.push(Math.round(death / state_pop * 10) / 10);
+
+                deathsIncrease.x1.push(death_counter);
+                deathsIncrease.y1.push(Math.round(deathIncrease / state_pop * 10) / 10);
                 death_counter += 1;
             }
 
@@ -281,9 +298,13 @@ function getData(state_1, state_2) {
             }
 
             var death = data[data.length - i - 1].death;
+            var deathIncrease = Math.max(0, data[data.length - i - 1].deathIncrease);
             if (death > 0) {
                 deaths.x2.push(death_counter);
                 deaths.y2.push(Math.round(death / state_pop * 10) / 10);
+
+                deathsIncrease.x2.push(death_counter);
+                deathsIncrease.y2.push(Math.round(deathIncrease / state_pop * 10) / 10);
                 death_counter += 1;
             }
 
@@ -337,6 +358,12 @@ function check_ready(state_1, state_2) {
         plot('deathsChart', labels, deaths.y0, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first death', 'Deaths per 1M');
     }
 
+    if (deathsIncrease.y1.length > 0 && deathsIncrease.y2.length > 0) {
+        max_labels = Math.max(...[deathsIncrease.y0.length, deathsIncrease.y1.length, deathsIncrease.y2.length]);
+        labels = [...Array(max_labels).keys()];
+        plot('deathsIncreaseChart', labels, deathsIncrease.y0, deathsIncrease.y1, deathsIncrease.y2, state_1, state_2, 'New Covid-19 deaths per 1M', 'Days since first death', 'New death per 1M');
+    }
+
     if (tests.y1.length > 0 && tests.y2.length > 0) {
         max_labels = Math.max(...[tests.y0.length, tests.y1.length, tests.y2.length]);
         labels = [...Array(max_labels).keys()];
@@ -364,11 +391,6 @@ function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, s
         data: {
             labels: x_values,
             datasets: [{
-                label: 'USA',
-                data: y_values_0,
-                borderColor: 'black',
-                fill: false
-            },{
                 label: state_1,
                 data: y_values_1,
                 borderColor: 'blue',
@@ -377,6 +399,11 @@ function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, s
                 label: state_2,
                 data: y_values_2,
                 borderColor: 'orange',
+                fill: false
+            },{
+                label: 'USA',
+                data: y_values_0,
+                borderColor: 'black',
                 fill: false
             }]
         },
