@@ -68,6 +68,23 @@ var states = {
 
 function main() {
 
+    console.log(document.cookie);
+
+    // Retrieve set states
+    var state_1 = getCookie("state_1");
+    if (state_1.length === 2) {
+        $("#state_1").val(state_1);
+    } else {
+        $("#state_1").val("NY");
+    }
+
+    var state_2 = getCookie("state_2");
+    if (state_2.length === 2) {
+        $("#state_2").val(state_2);
+    } else {
+        $("#state_2").val("VA");
+    }
+
     // Get USA population
     $.getJSON("https://datausa.io/api/data?drilldowns=Nation&measures=Population&year=latest", function (data) {
 
@@ -166,7 +183,13 @@ function getStates() {
         charts[i].destroy();
     }
 
-    getData(document.getElementById("state_1").value, document.getElementById("state_2").value);
+    var state_1 = document.getElementById("state_1").value;
+    var state_2 = document.getElementById("state_2").value;
+
+    setCookie("state_1",state_1);
+    setCookie("state_2",state_2);
+
+    getData(state_1, state_2);
 }
 
 function getData(state_1, state_2) {
@@ -464,4 +487,26 @@ function parseDate(date_num) {
     month_str = date_str.substr(4, 2);
     day_str = date_str.substr(6, 2);
     return month_str + '/' + day_str + '/' + year_str;
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
