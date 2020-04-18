@@ -1,4 +1,5 @@
 var charts = [];
+var rolling_days = 7;
 
 var state_date = [];
 var positives = [];
@@ -175,7 +176,11 @@ function main() {
                     positivesRatio.y0.push(Math.round(positive / test * 1000) / 10);
                     positivesRatio_counter += 1;
                 }
-            }
+            } // for (var i = 0; i < data.length; i++) {
+
+            positivesIncrease.y0r = calculateRollingAverage(positivesIncrease.y0, rolling_days);
+            positivesIncreasePercent.y0r = calculateRollingAverage(positivesIncreasePercent.y0, rolling_days);
+            deathsIncrease.y0r = calculateRollingAverage(deathsIncrease.y0, rolling_days);
 
             state_date.s0 = parseDate(data[0].date);
 
@@ -311,6 +316,10 @@ function getData(state_1, state_2) {
             }
         }
 
+        positivesIncrease.y1r = calculateRollingAverage(positivesIncrease.y1, rolling_days);
+        positivesIncreasePercent.y1r = calculateRollingAverage(positivesIncreasePercent.y1, rolling_days);
+        deathsIncrease.y1r = calculateRollingAverage(deathsIncrease.y1, rolling_days);
+
         state_date.s1 = parseDate(data[0].date);
 
         check_ready(state_1, state_2);
@@ -379,6 +388,10 @@ function getData(state_1, state_2) {
             }
         }
 
+        positivesIncrease.y2r = calculateRollingAverage(positivesIncrease.y2, rolling_days);
+        positivesIncreasePercent.y2r = calculateRollingAverage(positivesIncreasePercent.y2, rolling_days);
+        deathsIncrease.y2r = calculateRollingAverage(deathsIncrease.y2, rolling_days);
+
         state_date.s2 = parseDate(data[0].date);
 
         check_ready(state_1, state_2);
@@ -394,49 +407,49 @@ function check_ready(state_1, state_2) {
     if (positives.y1.length > 0 && positives.y2.length > 0) {
         max_labels = Math.max(...[positives.y0.length, positives.y1.length, positives.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('positivesChart', labels, positives.y0, positives.y1, positives.y2, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first case', 'Cases per 1M', undefined);
+        plot('positivesChart', labels, positives.y0, null, positives.y1, null, positives.y2, null, state_1, state_2, 'Covid-19 cases per 1M', 'Days since first case', 'Cases per 1M', undefined);
     }
 
     if (positivesIncrease.y1.length > 0 && positivesIncrease.y2.length > 0) {
         max_labels = Math.max(...[positivesIncrease.y0.length, positivesIncrease.y1.length, positivesIncrease.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('positivesIncreaseChart', labels, positivesIncrease.y0, positivesIncrease.y1, positivesIncrease.y2, state_1, state_2, 'New Covid-19 cases per 1M', 'Days since first case', 'New cases per 1M', undefined);
+        plot('positivesIncreaseChart', labels, positivesIncrease.y0r, positivesIncrease.y0, positivesIncrease.y1r, positivesIncrease.y1, positivesIncrease.y2r,  positivesIncrease.y2, state_1, state_2, 'New Covid-19 cases per 1M', 'Days since first case', 'New cases per 1M', undefined);
     }
 
     if (positivesIncreasePercent.y1.length > 0 && positivesIncreasePercent.y2.length > 0) {
         max_labels = Math.max(...[positivesIncreasePercent.y0.length, positivesIncreasePercent.y1.length, positivesIncreasePercent.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('positivesIncreasePercentChart', labels, positivesIncreasePercent.y0, positivesIncreasePercent.y1, positivesIncreasePercent.y2, state_1, state_2, 'Increase in Covid-19 cases (%)', 'Days since first case', 'Percent increase in Covid-19 cases', 50);
+        plot('positivesIncreasePercentChart', labels, positivesIncreasePercent.y0r, positivesIncreasePercent.y0, positivesIncreasePercent.y1r, positivesIncreasePercent.y1, positivesIncreasePercent.y2r, positivesIncreasePercent.y2, state_1, state_2, 'Increase in Covid-19 cases (%)', 'Days since first case', 'Percent increase in Covid-19 cases', 50);
     }
 
     if (hospitalized.y1.length > 0 && hospitalized.y2.length > 0) {
         max_labels = Math.max(...[hospitalized.y0.length, hospitalized.y1.length, hospitalized.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('hospitalizedChart', labels, hospitalized.y0, hospitalized.y1, hospitalized.y2, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first hospitalization', 'Hospitalizations per 1M', undefined);
+        plot('hospitalizedChart', labels, hospitalized.y0, null, hospitalized.y1, null, hospitalized.y2, null, state_1, state_2, 'Covid-19 hospitalizations per 1M', 'Days since first hospitalization', 'Hospitalizations per 1M', undefined);
     }
 
     if (deaths.y1.length > 0 && deaths.y2.length > 0) {
         max_labels = Math.max(...[deaths.y0.length, deaths.y1.length, deaths.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('deathsChart', labels, deaths.y0, deaths.y1, deaths.y2, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first death', 'Deaths per 1M', undefined);
+        plot('deathsChart', labels, deaths.y0, null, deaths.y1, null, deaths.y2, null, state_1, state_2, 'Covid-19 deaths per 1M', 'Days since first death', 'Deaths per 1M', undefined);
     }
 
     if (deathsIncrease.y1.length > 0 && deathsIncrease.y2.length > 0) {
         max_labels = Math.max(...[deathsIncrease.y0.length, deathsIncrease.y1.length, deathsIncrease.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('deathsIncreaseChart', labels, deathsIncrease.y0, deathsIncrease.y1, deathsIncrease.y2, state_1, state_2, 'New Covid-19 deaths per 1M', 'Days since first death', 'New death per 1M', undefined);
+        plot('deathsIncreaseChart', labels, deathsIncrease.y0r, deathsIncrease.y0, deathsIncrease.y1r, deathsIncrease.y1, deathsIncrease.y2r, deathsIncrease.y2, state_1, state_2, 'New Covid-19 deaths per 1M', 'Days since first death', 'New death per 1M', undefined);
     }
 
     if (tests.y1.length > 0 && tests.y2.length > 0) {
         max_labels = Math.max(...[tests.y0.length, tests.y1.length, tests.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('testsChart', labels, tests.y0, tests.y1, tests.y2, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first test', 'Tests per 1M', undefined);
+        plot('testsChart', labels, tests.y0, null, tests.y1, null, tests.y2, null, state_1, state_2, 'Covid-19 tests per 1M', 'Days since first test', 'Tests per 1M', undefined);
     }
 
     if (positivesRatio.y1.length > 0 && positivesRatio.y2.length > 0) {
         max_labels = Math.max(...[positivesRatio.y0.length, positivesRatio.y1.length, positivesRatio.y2.length]);
         labels = [...Array(max_labels).keys()];
-        plot('positivesRatioChart', labels, positivesRatio.y0, positivesRatio.y1, positivesRatio.y2, state_1, state_2, 'Percent positive Covid-19 tests', 'Days since first test', 'Positive tests (%)', undefined);
+        plot('positivesRatioChart', labels, positivesRatio.y0, null, positivesRatio.y1, null, positivesRatio.y2, null, state_1, state_2, 'Percent positive Covid-19 tests', 'Days since first test', 'Positive tests (%)', undefined);
     }
 
     // Display when data last updated
@@ -446,7 +459,7 @@ function check_ready(state_1, state_2) {
 
 }
 
-function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, state_2, title, xtitle, ytitle, yMax) {
+function plot(chart_id, x_values, y_values_0, y_values_0r, y_values_1, y_values_1r, y_values_2, y_values_2r, state_1, state_2, title, xtitle, ytitle, yMax) {
 
     var ctx = document.getElementById(chart_id).getContext('2d');
     charts.push(new Chart(ctx, {
@@ -457,17 +470,41 @@ function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, s
                 label: state_1,
                 data: y_values_1,
                 borderColor: 'blue',
-                fill: false
+                fill: false,
+                pointRadius: 0
             },{
                 label: state_2,
                 data: y_values_2,
                 borderColor: 'orange',
-                fill: false
-            },{
+                fill: false,
+                pointRadius: 0
+            }, {
                 label: 'USA',
                 data: y_values_0,
                 borderColor: 'black',
-                fill: false
+                fill: false,
+                pointRadius: 0
+            },{
+                label: null,
+                data: y_values_1r,
+                borderColor: 'rgba(0,0,255,0.25)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0
+            },{
+                label: null,
+                data: y_values_2r,
+                borderColor: 'rgba(255,165,0,0.5)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0
+            },{
+                label: null,
+                data: y_values_0r,
+                borderColor: 'rgba(0,0,0,0.25)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0
             }]
         },
         options: {
@@ -510,6 +547,14 @@ function plot(chart_id, x_values, y_values_0, y_values_1, y_values_2, state_1, s
                         max: yMax
                     }
                 }]
+            },
+            legend: {
+                display: true,
+                labels: {
+                    filter: function(legendItem, data) {
+                        return legendItem.text != null
+                    }
+                }
             }
         }
     }));
@@ -552,4 +597,15 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+function calculateRollingAverage(data, length) {
+    rolling_data_average = [];
+    for (var i = 0; i < data.length; i++) {
+        var rolling_data = data.slice(Math.max(0,i-length+1),i+1);
+        var rolling_average = rolling_data.reduce((a,b) => a + b, 0) / rolling_data.length;
+        rolling_average = Math.round(rolling_average * 10) / 10;
+        rolling_data_average.push(rolling_average);
+    }
+    return rolling_data_average;
 }
