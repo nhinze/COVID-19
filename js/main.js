@@ -485,12 +485,9 @@ function plot(chart_id, x0, y0, y0r, x1, y1, y1r, x2, y2, y2r, state_1, state_2,
                 fontSize: 24
             },
             tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
                 mode: 'nearest',
-                intersect: true
+                axis: 'x',
+                intersect: false
             },
             scales: {
                 xAxes: [{
