@@ -117,7 +117,7 @@ function main() {
         positivesRatio.y0 = [];
 
         // Get USA Covid Data
-        $.getJSON( "https://covidtracking.com/api/us/daily", function( data ) {
+        $.getJSON( "https://covidtracking.com/api/us/daily.json", function( data ) {
 
             for (var i = 0; i < data.length; i++) {
 
