@@ -1,6 +1,8 @@
 var data;
 var dates = [];
 
+var charts = [];
+
 var states = {
     'AL': 'Alabama',
     'AK': 'Alaska',
@@ -150,7 +152,7 @@ function performAnalysis() {
     console.log(positives);
     console.log(positivesIncrease);
 
-    // plot('positivesChart', positives, positivesIncrease, 'Covid-19 cases per 1M', 'Date', 'Cases per 1M', undefined);
+    plot('positivesChart', positives, positivesIncrease, 'Covid-19 cases per 1M', 'Date', 'Total Cases', 'New Cases');
 
 }
 
@@ -284,60 +286,33 @@ function distance(lat1, lon1, lat2, lon2, unit) {
     }
 }
 
-function plot(chart_id, positives, positivesIncrease, title, xtitle, ytitle, yMax) {
+function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title) {
 
-    var data_0  = formatPlotData(x0, y0);
-    var data_0r = formatPlotData(x0, y0r);
-
-    var data_1  = formatPlotData(x1, y1);
-    var data_1r = formatPlotData(x1, y1r);
-
-    var data_2  = formatPlotData(x2, y2);
-    var data_2r = formatPlotData(x2, y2r);
+    var data_y1  = formatPlotData(series_y1.x, series_y1.y);
+    var data_y2 = formatPlotData(series_y2.x, series_y2.y);
 
     var ctx = document.getElementById(chart_id).getContext('2d');
     charts.push(new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [{
-                label: state_1,
-                data: data_1,
+                label: 'Total Cases',
+                data: data_y1,
+                borderColor: 'red',
+                backgroundColor: 'red',
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y1',
+                type: 'line'
+            },{
+                label: 'New Cases',
+                data: data_y2,
                 borderColor: 'blue',
-                fill: false,
-                pointRadius: 0
-            },{
-                label: state_2,
-                data: data_2,
-                borderColor: 'orange',
-                fill: false,
-                pointRadius: 0
-            }, {
-                label: 'USA',
-                data: data_0,
-                borderColor: 'black',
-                fill: false,
-                pointRadius: 0
-            },{
-                label: null,
-                data: data_1r,
-                borderColor: 'rgba(0,0,255,0.25)',
-                borderWidth: 1,
-                fill: false,
-                pointRadius: 0
-            },{
-                label: null,
-                data: data_2r,
-                borderColor: 'rgba(255,165,0,0.5)',
-                borderWidth: 1,
-                fill: false,
-                pointRadius: 0
-            },{
-                label: null,
-                data: data_0r,
-                borderColor: 'rgba(0,0,0,0.25)',
-                borderWidth: 1,
-                fill: false,
-                pointRadius: 0
+                backgroundColor: 'blue',
+                fill: true,
+                pointRadius: 0,
+                yAxisID: 'y2',
+                type: 'bar'
             }]
         },
         options: {
@@ -363,23 +338,28 @@ function plot(chart_id, positives, positivesIncrease, title, xtitle, ytitle, yMa
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: xtitle,
+                        labelString: x_title,
                         fontSize: 18
-                    },
-                    time: {
-                        min: Math.min(x1[0],x2[0])
                     }
                 }],
                 yAxes: [{
+                    id: 'y1',
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: ytitle,
+                        labelString: y1_title,
                         fontSize: 18
                     },
-                    ticks: {
-                        max: yMax
-                    }
+                    position: 'left'
+                },{
+                    id: 'y2',
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: y2_title,
+                        fontSize: 18
+                    },
+                    position: 'right'
                 }]
             },
             legend: {
@@ -393,4 +373,20 @@ function plot(chart_id, positives, positivesIncrease, title, xtitle, ytitle, yMa
         }
     }));
 
+}
+
+function formatPlotData(x,y) {
+    var data;
+    if (y === null) {
+        data = null;
+    } else {
+        data = [];
+        for (var i = 0; i < x.length; i++) {
+            var point = {};
+            point.x = x[i];
+            point.y = y[i];
+            data.push(point);
+        }
+    }
+    return data;
 }
