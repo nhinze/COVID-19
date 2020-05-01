@@ -81,10 +81,17 @@ function main() {
             fillCounties();
 
             var fips = getCookie("fips");
-            if (fips.length === 5) {
+            if (fips.length > 0) {
                 $("#counties").val(fips);
             } else {
                 $("#counties").val("51019.0");
+            }
+
+            var range = getCookie("range");
+            if (range.length > 0) {
+                $("#range").val(range);
+            } else {
+                $("#range").val("50");
             }
             performAnalysis();
         }
@@ -114,10 +121,15 @@ function fillCounties() {
 
 function performAnalysis() {
 
+    for (var i = 0; i < charts.length; i++) {
+        charts[i].destroy();
+    }
+
     var fips = $("#counties").val();
     var county = getCounty(fips);
+    var range_sm =parseFloat($("#range").val());
 
-    var counties = getCounties(county, 50);
+    var counties = getCounties(county, range_sm);
     var cases = getCases(counties);
 
     //console.log(counties);
@@ -149,8 +161,8 @@ function performAnalysis() {
 
     }
 
-    console.log(positives);
-    console.log(positivesIncrease);
+    // console.log(positives);
+    // console.log(positivesIncrease);
 
     plot('positivesChart', positives, positivesIncrease, 'Covid-19 cases per 1M', 'Date', 'Total Cases', 'New Cases');
 
@@ -340,6 +352,10 @@ function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title
                         display: true,
                         labelString: x_title,
                         fontSize: 18
+                    },
+                    offset: true,
+                    gridLines: {
+                        display: false
                     }
                 }],
                 yAxes: [{
@@ -359,7 +375,10 @@ function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title
                         labelString: y2_title,
                         fontSize: 18
                     },
-                    position: 'right'
+                    position: 'right',
+                    gridLines: {
+                        display: false
+                    }
                 }]
             },
             legend: {
