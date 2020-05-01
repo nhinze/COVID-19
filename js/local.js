@@ -1,5 +1,6 @@
 var data;
 var dates = [];
+var rolling_days = 7;
 
 var charts = [];
 
@@ -69,6 +70,8 @@ function main() {
                 dates.push(data[0][i]);
             }
 
+            $('#lastUpdateSpan0').html(dates[dates.length-1]);
+
             // console.log(dates);
 
             // Retrieve set states
@@ -104,6 +107,8 @@ function fillCounties() {
     var state = $("#states").val();
     var select = $("#counties")[0];
 
+    setCookie("state",state);
+
     select.options.length = 0;
     select.options[select.options.length] = new Option("", "0");
 
@@ -117,6 +122,19 @@ function fillCounties() {
 
         select.options[select.options.length] = new Option(data[i][5], data[i][4]);
     }
+
+    // Sort
+    var my_options = $("#counties option");
+    var selected = $("#counties").val();
+
+    my_options.sort(function(a,b) {
+        if (a.text > b.text) return 1;
+        if (a.text < b.text) return -1;
+        return 0
+    })
+
+    $("#counties").empty().append( my_options );
+    $("#counties").val(selected);
 }
 
 function performAnalysis() {
@@ -132,6 +150,9 @@ function performAnalysis() {
     var counties = getCounties(county, range_sm);
     var cases = getCases(counties);
 
+    setCookie("fips",fips);
+    setCookie("range",range_sm);
+
     //console.log(counties);
     //console.log(cases);
 
@@ -142,6 +163,7 @@ function performAnalysis() {
     var positivesIncrease = {};
     positivesIncrease.x = [];
     positivesIncrease.y = [];
+    positivesIncrease.yr = [];
 
     for (var i = 0; i < cases.length; i++) {
 
@@ -163,6 +185,8 @@ function performAnalysis() {
 
     // console.log(positives);
     // console.log(positivesIncrease);
+
+    positivesIncrease.yr = calculateRollingAverage(positivesIncrease.y, rolling_days);
 
     plot('positivesChart', positives, positivesIncrease, 'Covid-19 cases per 1M', 'Date', 'Total Cases', 'New Cases');
 
@@ -302,6 +326,7 @@ function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title
 
     var data_y1  = formatPlotData(series_y1.x, series_y1.y);
     var data_y2 = formatPlotData(series_y2.x, series_y2.y);
+    var data_y2r = formatPlotData(series_y2.x, series_y2.yr);
 
     var ctx = document.getElementById(chart_id).getContext('2d');
     charts.push(new Chart(ctx, {
@@ -315,6 +340,15 @@ function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title
                 fill: false,
                 pointRadius: 0,
                 yAxisID: 'y1',
+                type: 'line'
+            },{
+                label: 'New Cases (Rolling Average)',
+                data: data_y2r,
+                borderColor: 'black',
+                backgroundColor: 'black',
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y2',
                 type: 'line'
             },{
                 label: 'New Cases',
@@ -408,4 +442,15 @@ function formatPlotData(x,y) {
         }
     }
     return data;
+}
+
+function calculateRollingAverage(data, length) {
+    rolling_data_average = [];
+    for (var i = 0; i < data.length; i++) {
+        var rolling_data = data.slice(Math.max(0,i-length+1),i+1);
+        var rolling_average = rolling_data.reduce((a,b) => a + b, 0) / rolling_data.length;
+        rolling_average = Math.round(rolling_average * 10) / 10;
+        rolling_data_average.push(rolling_average);
+    }
+    return rolling_data_average;
 }
