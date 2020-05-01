@@ -1,8 +1,11 @@
-var data;
+var data = [];
 var dates = [];
 var rolling_days = 7;
 
 var charts = [];
+
+var cases_offset = 11;
+var deaths_offset = 12;
 
 var states = {
     'AL': 'Alabama',
@@ -63,11 +66,12 @@ function main() {
     Papa.parse("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv", {
         download: true,
         complete: function (results) {
-            // console.log(results);
-            data = results.data;
+            // console.log(results.data[0]);
+            data.cases = results.data;
 
-            for (var i = 11; i < data[0].length; i++) {
-                dates.push(data[0][i]);
+            dates.cases = [];
+            for (var i = cases_offset; i < data.cases[0].length; i++) {
+                dates.cases.push(data.cases[0][i]);
             }
 
             $('#lastUpdateSpan0').html(dates[dates.length-1]);
@@ -96,10 +100,23 @@ function main() {
             } else {
                 $("#range").val("50");
             }
-            performAnalysis();
+
+            Papa.parse("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv", {
+                download: true,
+                complete: function (results) {
+                    // console.log(results.data[0]);
+                    data.deaths = results.data;
+
+                    dates.deaths = [];
+                    for (var i = deaths_offset; i < data.deaths[0].length; i++) {
+                        dates.deaths.push(data.deaths[0][i]);
+                    }
+
+                    performAnalysis();
+                }
+            });
         }
     });
-
 }
 
 function fillCounties() {
@@ -112,15 +129,15 @@ function fillCounties() {
     select.options.length = 0;
     select.options[select.options.length] = new Option("", "0");
 
-    for(var i = 0; i < data.length; i++) {
+    for(var i = 0; i < data.cases.length; i++) {
 
         // Skip if not county
-        if (data[i][3] !== '840') { continue }
+        if (data.cases[i][3] !== '840') { continue }
 
         // Skip if wrong state
-        if (data[i][6] !== states[state]) { continue }
+        if (data.cases[i][6] !== states[state]) { continue }
 
-        select.options[select.options.length] = new Option(data[i][5], data[i][4]);
+        select.options[select.options.length] = new Option(data.cases[i][5], data.cases[i][4]);
     }
 
     // Sort
@@ -144,11 +161,14 @@ function performAnalysis() {
     }
 
     var fips = $("#counties").val();
-    var county = getCounty(fips);
-    var range_sm =parseFloat($("#range").val());
+    var county = getCounty(fips, data.cases);
+    var range_sm = parseFloat($("#range").val());
 
-    var counties = getCounties(county, range_sm);
-    var cases = getCases(counties);
+    var counties_cases = getCounties(county, range_sm, data.cases);
+    var counties_cases_sum = sumCounties(counties_cases, cases_offset);
+
+    var counties_deaths = getCounties(county, range_sm, data.deaths);
+    var counties_deaths_sum = sumCounties(counties_deaths, deaths_offset);
 
     setCookie("fips",fips);
     setCookie("range",range_sm);
@@ -156,29 +176,56 @@ function performAnalysis() {
     //console.log(counties);
     //console.log(cases);
 
-    var positives = {};
-    positives.x = [];
-    positives.y = [];
+    var cases = {};
+    cases.x = [];
+    cases.y = [];
 
-    var positivesIncrease = {};
-    positivesIncrease.x = [];
-    positivesIncrease.y = [];
-    positivesIncrease.yr = [];
+    var casesIncrease = {};
+    casesIncrease.x = [];
+    casesIncrease.y = [];
+    casesIncrease.yr = [];
 
-    for (var i = 0; i < cases.length; i++) {
+    for (var i = 0; i < counties_cases_sum.length; i++) {
 
-        var positive = cases[i];
-        var positiveIncrease = 0;
+        var casesSum = counties_cases_sum[i];
+        var casesSumIncrease = 0;
         if (i > 0) {
-            positiveIncrease = Math.max(0,cases[i] - cases[i-1]);
+            casesSumIncrease = Math.max(0,counties_cases_sum[i] - counties_cases_sum[i-1]);
         }
 
-        if (positive > 0) {
-            positives.x.push(dates[i]);
-            positives.y.push(positive);
+        if (casesSum > 0) {
+            cases.x.push(dates.cases[i]);
+            cases.y.push(casesSum);
 
-            positivesIncrease.x.push(dates[i]);
-            positivesIncrease.y.push(positiveIncrease);
+            casesIncrease.x.push(dates.cases[i]);
+            casesIncrease.y.push(casesSumIncrease);
+        }
+
+    }
+
+    var deaths = {};
+    deaths.x = [];
+    deaths.y = [];
+
+    var deathsIncrease = {};
+    deathsIncrease.x = [];
+    deathsIncrease.y = [];
+    deathsIncrease.yr = [];
+
+    for (var i = 0; i < counties_deaths_sum.length; i++) {
+
+        var deathsSum = counties_deaths_sum[i];
+        var deathsSumIncrease = 0;
+        if (i > 0) {
+            deathsSumIncrease = Math.max(0,counties_deaths_sum[i] - counties_deaths_sum[i-1]);
+        }
+
+        if (deathsSum > 0) {
+            deaths.x.push(dates.deaths[i]);
+            deaths.y.push(deathsSum);
+
+            deathsIncrease.x.push(dates.deaths[i]);
+            deathsIncrease.y.push(deathsSumIncrease);
         }
 
     }
@@ -186,13 +233,15 @@ function performAnalysis() {
     // console.log(positives);
     // console.log(positivesIncrease);
 
-    positivesIncrease.yr = calculateRollingAverage(positivesIncrease.y, rolling_days);
+    casesIncrease.yr = calculateRollingAverage(casesIncrease.y, rolling_days);
+    deathsIncrease.yr = calculateRollingAverage(deathsIncrease.y, rolling_days);
 
-    plot('positivesChart', positives, positivesIncrease, 'Covid-19 cases per 1M', 'Date', 'Total Cases', 'New Cases');
+    plot('positivesChart', cases, casesIncrease, county, range_sm, 'cases');
+    plot('deathsChart', deaths, deathsIncrease, county, range_sm, 'deaths');
 
 }
 
-function getCounty(fips) {
+function getCounty(fips, data) {
 
     var county;
 
@@ -208,7 +257,7 @@ function getCounty(fips) {
     return county;
 }
 
-function getCounties(county, range_sm) {
+function getCounties(county, range_sm, data) {
 
     var counties = [];
 
@@ -235,11 +284,11 @@ function getCounties(county, range_sm) {
     return counties;
 }
 
-function getCases(counties) {
+function sumCounties(counties, offset) {
 
     var cases = [];
 
-    for (var i = 11; i < counties[0].length; i++) {
+    for (var i = offset; i < counties[0].length; i++) {
         var day_sum = 0;
         for (var c = 0; c < counties.length; c++) {
             day_sum += parseInt(counties[c][i]);
@@ -322,7 +371,11 @@ function distance(lat1, lon1, lat2, lon2, unit) {
     }
 }
 
-function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title) {
+function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
+
+    var title = 'Covid-19 ' + data_type + ' within ' + range_sm + ' miles of ' + county[10];
+    var y1_title = 'Total ' + data_type;
+    var y2_title = 'New ' + data_type
 
     var data_y1  = formatPlotData(series_y1.x, series_y1.y);
     var data_y2 = formatPlotData(series_y2.x, series_y2.y);
@@ -384,7 +437,7 @@ function plot(chart_id, series_y1, series_y2, title, x_title, y1_title, y2_title
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: x_title,
+                        labelString: 'Date',
                         fontSize: 18
                     },
                     offset: true,
