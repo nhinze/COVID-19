@@ -112,6 +112,8 @@ function main() {
                         dates.deaths.push(data.deaths[0][i]);
                     }
 
+                    $('#lastUpdateSpan1').html(dates.deaths[dates.deaths.length-1]);
+
                     performAnalysis();
                 }
             });
@@ -490,7 +492,7 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
 
 function fillTable(data, data_offset, table_id) {
 
-    // console.log(data)
+    $(table_id).DataTable().destroy();
 
     $(table_id + " tbody tr").remove();
 
@@ -517,6 +519,9 @@ function fillTable(data, data_offset, table_id) {
         }
     }
 
+    $(table_id).DataTable({
+        "order": [ 2, 'desc' ]
+    });
 }
 
 function formatPlotData(x,y) {
