@@ -435,18 +435,21 @@ function plot(chart_id, x0, y0, y0r, x1, y1, y1r, x2, y2, y2r, state_1, state_2,
                 label: state_1,
                 data: data_1,
                 borderColor: 'blue',
+                backgroundColor: 'blue',
                 fill: false,
                 pointRadius: 0
             },{
                 label: state_2,
                 data: data_2,
                 borderColor: 'orange',
+                backgroundColor: 'orange',
                 fill: false,
                 pointRadius: 0
             }, {
                 label: 'USA',
                 data: data_0,
                 borderColor: 'black',
+                backgroundColor: 'black',
                 fill: false,
                 pointRadius: 0
             },{

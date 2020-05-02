@@ -74,7 +74,7 @@ function main() {
                 dates.cases.push(data.cases[0][i]);
             }
 
-            $('#lastUpdateSpan0').html(dates[dates.length-1]);
+            $('#lastUpdateSpan0').html(dates.cases[dates.cases.length-1]);
 
             // console.log(dates);
 
@@ -173,8 +173,8 @@ function performAnalysis() {
     setCookie("fips",fips);
     setCookie("range",range_sm);
 
-    //console.log(counties);
-    //console.log(cases);
+    // console.log(counties_cases);
+    // console.log(cases);
 
     var cases = {};
     cases.x = [];
@@ -239,6 +239,8 @@ function performAnalysis() {
     plot('positivesChart', cases, casesIncrease, county, range_sm, 'cases');
     plot('deathsChart', deaths, deathsIncrease, county, range_sm, 'deaths');
 
+    fillTable(counties_cases, cases_offset, '#selected_counties_cases')
+    fillTable(counties_deaths, deaths_offset, '#selected_counties_deaths')
 }
 
 function getCounty(fips, data) {
@@ -373,7 +375,12 @@ function distance(lat1, lon1, lat2, lon2, unit) {
 
 function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
 
-    var title = 'Covid-19 ' + data_type + ' within ' + range_sm + ' miles of ' + county[10];
+    var title;
+    if (range_sm === 0) {
+        title = 'Covid-19 ' + data_type + ' in ' + county[10];
+    } else {
+        title = 'Covid-19 ' + data_type + ' within ' + range_sm + ' miles of ' + county[10];
+    }
     var y1_title = 'Total ' + data_type;
     var y2_title = 'New ' + data_type
 
@@ -478,6 +485,37 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
             }
         }
     }));
+
+}
+
+function fillTable(data, data_offset, table_id) {
+
+    // console.log(data)
+
+    $(table_id + " tbody tr").remove();
+
+    var table = $(table_id + " tbody")[0];
+    var county_data_length = data[0].length;
+
+    for (var i = 0; i < data.length; i++) {
+
+        var data_change = 0;
+        if (county_data_length > data_offset) {
+            data_change = Math.max(0, data[i][county_data_length-1] - data[i][county_data_length-2]);
+        }
+
+        var row = table.insertRow(0);
+
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+
+        cell1.innerHTML = data[i][5] + ', ' + data[i][6];
+        cell2.innerHTML = data[i][county_data_length-1];
+        if (data_change > 0) {
+            cell3.innerHTML = '+' + data_change;
+        }
+    }
 
 }
 
