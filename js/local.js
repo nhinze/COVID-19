@@ -385,6 +385,7 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
     }
     var y1_title = 'Total ' + data_type;
     var y2_title = 'New ' + data_type
+    var y2r_title = y2_title + ' (Rolling Average)';
 
     var data_y1  = formatPlotData(series_y1.x, series_y1.y);
     var data_y2 = formatPlotData(series_y2.x, series_y2.y);
@@ -395,7 +396,7 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
         type: 'line',
         data: {
             datasets: [{
-                label: 'Total Cases',
+                label: y1_title,
                 data: data_y1,
                 borderColor: 'red',
                 backgroundColor: 'red',
@@ -404,7 +405,7 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
                 yAxisID: 'y1',
                 type: 'line'
             },{
-                label: 'New Cases (Rolling Average)',
+                label: y2r_title,
                 data: data_y2r,
                 borderColor: 'black',
                 backgroundColor: 'black',
@@ -413,7 +414,7 @@ function plot(chart_id, series_y1, series_y2, county, range_sm, data_type) {
                 yAxisID: 'y2',
                 type: 'line'
             },{
-                label: 'New Cases',
+                label: y2_title,
                 data: data_y2,
                 borderColor: 'blue',
                 backgroundColor: 'blue',
