@@ -7,6 +7,8 @@ var charts = [];
 var cases_offset = 11;
 var deaths_offset = 12;
 
+var backButtonPushed = false;
+
 var states = {
     'AL': 'Alabama',
     'AK': 'Alaska',
@@ -76,10 +78,21 @@ function main() {
 
             $('#lastUpdateSpan0').html(dates.cases[dates.cases.length-1]);
 
-            // console.log(dates);
+            // Get query params
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            const state_param = urlParams.get('state');
+            const fips_param = urlParams.get('fips');
+            const range_param = urlParams.get('range');
 
             // Retrieve set states
-            var state = getCookie("state");
+            var state;
+            if (state_param === null) {
+                state = getCookie("state");
+            } else {
+                state = state_param;
+            }
             if (state.length === 2) {
                 $("#states").val(state);
             } else {
@@ -87,14 +100,24 @@ function main() {
             }
             fillCounties();
 
-            var fips = getCookie("fips");
+            var fips;
+            if (fips_param === null) {
+                fips = getCookie("fips");
+            } else {
+                fips = fips_param;
+            }
             if (fips.length > 0) {
                 $("#counties").val(fips);
             } else {
                 $("#counties").val("51019.0");
             }
 
-            var range = getCookie("range");
+            var range;
+            if (range_param === null) {
+                range = getCookie("range");
+            } else {
+                range = range_param;
+            }
             if (range.length > 0) {
                 $("#range").val(range);
             } else {
@@ -175,8 +198,13 @@ function performAnalysis() {
     setCookie("fips",fips);
     setCookie("range",range_sm);
 
-    // console.log(counties_cases);
-    // console.log(cases);
+    var state = $("#states").val();
+
+    if (backButtonPushed) {
+        backButtonPushed = false;
+    } else {
+        changeUrl(state, fips, range_sm);
+    }
 
     var cases = {};
     cases.x = [];
@@ -231,9 +259,6 @@ function performAnalysis() {
         }
 
     }
-
-    // console.log(positives);
-    // console.log(positivesIncrease);
 
     casesIncrease.yr = calculateRollingAverage(casesIncrease.y, rolling_days);
     deathsIncrease.yr = calculateRollingAverage(deathsIncrease.y, rolling_days);
@@ -550,4 +575,16 @@ function calculateRollingAverage(data, length) {
         rolling_data_average.push(rolling_average);
     }
     return rolling_data_average;
+}
+
+function changeUrl(state, fips, range) {
+    if (typeof (history.pushState) != "undefined") {
+        var pageUrl = '?state=' + state + '&fips=' + fips + '&range=' + range;
+        history.pushState('', '', pageUrl);
+    }
+}
+
+window.onpopstate = function(event) {
+    main();
+    backButtonPushed = true;
 }

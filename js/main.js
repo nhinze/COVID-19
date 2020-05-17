@@ -14,6 +14,8 @@ var positivesRatio = [];
 var population_usa;
 var population = {};
 
+var backButtonPushed = false;
+
 var states = {
     'AL': 'Alabama',
     'AK': 'Alaska',
@@ -70,15 +72,31 @@ var states = {
 
 function main() {
 
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    const state_1_param = urlParams.get('state_1');
+    const state_2_param = urlParams.get('state_2');
+
     // Retrieve set states
-    var state_1 = getCookie("state_1");
+    var state_1;
+    if (state_1_param === null) {
+        state_1 = getCookie("state_1");
+    } else {
+        state_1 = state_1_param;
+    }
     if (state_1.length === 2) {
         $("#state_1").val(state_1);
     } else {
         $("#state_1").val("NY");
     }
 
-    var state_2 = getCookie("state_2");
+    var state_2;
+    if (state_2_param === null) {
+        state_2 = getCookie("state_2");
+    } else {
+        state_2 = state_2_param;
+    }
     if (state_2.length === 2) {
         $("#state_2").val(state_2);
     } else {
@@ -196,6 +214,12 @@ function getStates() {
 
     setCookie("state_1",state_1);
     setCookie("state_2",state_2);
+
+    if (backButtonPushed) {
+        backButtonPushed = false;
+    } else {
+        changeUrl(state_1, state_2);
+    }
 
     getData(state_1, state_2);
 }
@@ -597,4 +621,16 @@ function formatPlotData(x,y) {
         }
     }
     return data;
+}
+
+function changeUrl(state_1, state_2) {
+    if (typeof (history.pushState) != "undefined") {
+        var pageUrl = '?state_1=' + state_1 + '&state_2=' + state_2;
+        history.pushState('', '', pageUrl);
+    }
+}
+
+window.onpopstate = function(event) {
+    main();
+    backButtonPushed = true;
 }
