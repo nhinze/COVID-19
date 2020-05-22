@@ -9,6 +9,7 @@ var hospitalized = [];
 var deaths = [];
 var deathsIncrease = [];
 var tests = [];
+var testsIncrease = [];
 var positivesRatio = [];
 
 var population_usa;
@@ -131,6 +132,9 @@ function main() {
         tests.x0 = [];
         tests.y0 = [];
 
+        testsIncrease.x0 = [];
+        testsIncrease.y0 = [];
+
         positivesRatio.x0 = [];
         positivesRatio.y0 = [];
 
@@ -177,20 +181,26 @@ function main() {
                 }
 
                 var test = data[data.length - i - 1].totalTestResults;
+                var testIncrease = data[data.length - i - 1].totalTestResultsIncrease;
                 if (test > 0) {
                     tests.x0.push(date);
                     tests.y0.push(Math.round(test / population_usa * 10) / 10);
+
+                    testsIncrease.x0.push(date);
+                    testsIncrease.y0.push(Math.round(testIncrease / population_usa * 10) / 10);
                 }
 
                 if (test > 0) {
                     positivesRatio.x0.push(date);
-                    positivesRatio.y0.push(Math.round(positive / test * 1000) / 10);
+                    positivesRatio.y0.push(Math.round(positiveIncrease / testIncrease * 1000) / 10);
                 }
             } // for (var i = 0; i < data.length; i++) {
 
             positivesIncrease.y0r = calculateRollingAverage(positivesIncrease.y0, rolling_days);
             positivesIncreasePercent.y0r = calculateRollingAverage(positivesIncreasePercent.y0, rolling_days);
             deathsIncrease.y0r = calculateRollingAverage(deathsIncrease.y0, rolling_days);
+            testsIncrease.y0r = calculateRollingAverage(testsIncrease.y0, rolling_days);
+            positivesRatio.y0r = calculateRollingAverage(positivesRatio.y0, rolling_days);
 
             state_date.s0 = parseDate(data[0].date);
 
@@ -212,8 +222,8 @@ function getStates() {
     var state_1 = document.getElementById("state_1").value;
     var state_2 = document.getElementById("state_2").value;
 
-    setCookie("state_1",state_1);
-    setCookie("state_2",state_2);
+    setCookie("state_1",state_1,10000);
+    setCookie("state_2",state_2,10000);
 
     if (backButtonPushed) {
         backButtonPushed = false;
@@ -264,6 +274,11 @@ function getData(state_1, state_2) {
     tests.y1 = [];
     tests.y2 = [];
 
+    testsIncrease.x1 = [];
+    testsIncrease.x2 = [];
+    testsIncrease.y1 = [];
+    testsIncrease.y2 = [];
+
     positivesRatio.x1 = [];
     positivesRatio.x2 = [];
     positivesRatio.y1 = [];
@@ -313,20 +328,26 @@ function getData(state_1, state_2) {
             }
 
             var test = data[data.length - i - 1].totalTestResults;
+            var testIncrease = Math.max(0, data[data.length - i - 1].totalTestResultsIncrease);
             if (test > 0) {
                 tests.x1.push(date);
                 tests.y1.push(Math.round(test / state_pop * 10) / 10);
+
+                testsIncrease.x1.push(date);
+                testsIncrease.y1.push(Math.round(testIncrease / state_pop * 10) / 10);
             }
 
             if (test > 0) {
                 positivesRatio.x1.push(date);
-                positivesRatio.y1.push(Math.round(positive / test * 1000) / 10);
+                positivesRatio.y1.push(Math.round(positiveIncrease / testIncrease * 1000) / 10);
             }
         }
 
         positivesIncrease.y1r = calculateRollingAverage(positivesIncrease.y1, rolling_days);
         positivesIncreasePercent.y1r = calculateRollingAverage(positivesIncreasePercent.y1, rolling_days);
         deathsIncrease.y1r = calculateRollingAverage(deathsIncrease.y1, rolling_days);
+        testsIncrease.y1r = calculateRollingAverage(testsIncrease.y1, rolling_days);
+        positivesRatio.y1r = calculateRollingAverage(positivesRatio.y1, rolling_days);
 
         state_date.s1 = parseDate(data[0].date);
 
@@ -377,20 +398,26 @@ function getData(state_1, state_2) {
             }
 
             var test = data[data.length - i - 1].totalTestResults;
+            var testIncrease = Math.max(0, data[data.length - i - 1].totalTestResultsIncrease);
             if (test > 0) {
                 tests.x2.push(date);
                 tests.y2.push(Math.round(test / state_pop * 10) / 10);
+
+                testsIncrease.x2.push(date);
+                testsIncrease.y2.push(Math.round(testIncrease / state_pop * 10) / 10);
             }
 
             if (test > 0) {
                 positivesRatio.x2.push(date);
-                positivesRatio.y2.push(Math.round(positive / test * 1000) / 10);
+                positivesRatio.y2.push(Math.round(positiveIncrease / testIncrease * 1000) / 10);
             }
         }
 
         positivesIncrease.y2r = calculateRollingAverage(positivesIncrease.y2, rolling_days);
         positivesIncreasePercent.y2r = calculateRollingAverage(positivesIncreasePercent.y2, rolling_days);
         deathsIncrease.y2r = calculateRollingAverage(deathsIncrease.y2, rolling_days);
+        testsIncrease.y2r = calculateRollingAverage(testsIncrease.y2, rolling_days);
+        positivesRatio.y2r = calculateRollingAverage(positivesRatio.y2, rolling_days);
 
         state_date.s2 = parseDate(data[0].date);
 
@@ -422,15 +449,19 @@ function check_ready(state_1, state_2) {
     }
 
     if (deathsIncrease.y1.length > 0 && deathsIncrease.y2.length > 0) {
-        plot('deathsIncreaseChart', deathsIncrease.x0, deathsIncrease.y0r, deathsIncrease.y0, deathsIncrease.x1, deathsIncrease.y1r, deathsIncrease.y1, deathsIncrease.x2, deathsIncrease.y2r, deathsIncrease.y2, state_1, state_2, 'New Covid-19 deaths per 1M', 'Date', 'New death per 1M', undefined);
+        plot('deathsIncreaseChart', deathsIncrease.x0, deathsIncrease.y0r, deathsIncrease.y0, deathsIncrease.x1, deathsIncrease.y1r, deathsIncrease.y1, deathsIncrease.x2, deathsIncrease.y2r, deathsIncrease.y2, state_1, state_2, 'New Covid-19 deaths per 1M', 'Date', 'New deaths per 1M', undefined);
     }
 
     if (tests.y1.length > 0 && tests.y2.length > 0) {
         plot('testsChart', tests.x0, tests.y0, null, tests.x1, tests.y1, null, tests.x2, tests.y2, null, state_1, state_2, 'Covid-19 tests per 1M', 'Date', 'Tests per 1M', undefined);
     }
 
+    if (testsIncrease.y1.length > 0 && testsIncrease.y2.length > 0) {
+        plot('testsIncreaseChart', testsIncrease.x0, testsIncrease.y0r, testsIncrease.y0, testsIncrease.x1, testsIncrease.y1r, testsIncrease.y1, testsIncrease.x2, testsIncrease.y2r, testsIncrease.y2, state_1, state_2, 'New Covid-19 tests per 1M', 'Date', 'New tests per 1M', undefined);
+    }
+
     if (positivesRatio.y1.length > 0 && positivesRatio.y2.length > 0) {
-        plot('positivesRatioChart', positivesRatio.x0, positivesRatio.y0, null, positivesRatio.x1, positivesRatio.y1, null, positivesRatio.x2, positivesRatio.y2, null, state_1, state_2, 'Percent positive Covid-19 tests', 'Date', 'Positive tests (%)', undefined);
+        plot('positivesRatioChart', positivesRatio.x0, positivesRatio.y0r, positivesRatio.y0, positivesRatio.x1, positivesRatio.y1r, positivesRatio.y1, positivesRatio.x2, positivesRatio.y2r, positivesRatio.y2, state_1, state_2, 'Percent positive Covid-19 tests', 'Date', 'Positive tests (%)', undefined);
     }
 
     // Display when data last updated

@@ -149,7 +149,7 @@ function fillCounties() {
     var state = $("#states").val();
     var select = $("#counties")[0];
 
-    setCookie("state",state);
+    setCookie("state",state,10000);
 
     select.options.length = 0;
     select.options[select.options.length] = new Option("", "0");
@@ -195,8 +195,8 @@ function performAnalysis() {
     var counties_deaths = getCounties(county, range_sm, data.deaths);
     var counties_deaths_sum = sumCounties(counties_deaths, deaths_offset);
 
-    setCookie("fips",fips);
-    setCookie("range",range_sm);
+    setCookie("fips",fips,10000);
+    setCookie("range",range_sm,10000);
 
     var state = $("#states").val();
 
