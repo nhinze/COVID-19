@@ -206,6 +206,8 @@ function performAnalysis() {
         changeUrl(state, fips, range_sm);
     }
 
+    document.title = 'Covid-19 cases and deaths within ' + range_sm + ' miles of ' + county[10];
+
     var cases = {};
     cases.x = [];
     cases.y = [];

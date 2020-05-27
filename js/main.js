@@ -222,6 +222,8 @@ function getStates() {
     var state_1 = document.getElementById("state_1").value;
     var state_2 = document.getElementById("state_2").value;
 
+    document.title = 'Covid-19 - ' + state_1 + ' - ' + state_2;
+
     setCookie("state_1",state_1,10000);
     setCookie("state_2",state_2,10000);
 
