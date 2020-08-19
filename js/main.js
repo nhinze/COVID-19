@@ -139,7 +139,7 @@ function main() {
         positivesRatio.y0 = [];
 
         // Get USA Covid Data
-        $.getJSON( "https://covidtracking.com/api/v1/us/daily.json", function( data ) {
+        $.getJSON( "https://api.covidtracking.com/v1/us/daily.json", function( data ) {
 
             for (var i = 0; i < data.length; i++) {
 
@@ -286,7 +286,7 @@ function getData(state_1, state_2) {
     positivesRatio.y1 = [];
     positivesRatio.y2 = [];
 
-    $.getJSON( "https://covidtracking.com/api/v1/states/" + state_1.toLowerCase() + "/daily.json", function( data ) {
+    $.getJSON( "https://api.covidtracking.com/v1/states/" + state_1.toLowerCase() + "/daily.json", function( data ) {
 
         var state_pop = getPopulation(state_1);
 
@@ -356,7 +356,7 @@ function getData(state_1, state_2) {
         check_ready(state_1, state_2);
     });
 
-    $.getJSON( "https://covidtracking.com/api/v1/states/" + state_2.toLowerCase() + "/daily.json", function( data ) {
+    $.getJSON( "https://api.covidtracking.com/v1/states/" + state_2.toLowerCase() + "/daily.json", function( data ) {
 
         var state_pop = getPopulation(state_2);
 
